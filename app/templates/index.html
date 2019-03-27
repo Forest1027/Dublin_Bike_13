@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html>
-<title>W3.CSS Template</title>
+<title>WhoseBike</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="../static/css/w3.css">
-
 <body>
 
     <!-- Navbar (sit on top) -->
@@ -41,11 +40,16 @@
         </div>
 
         <!-- Map Section -->
-        <div class="w3-container w3-padding-32" id="map">
+        <div class="w3-content w3-padding" style="max-width:1564px" id="map">
             <h3 class="w3-border-bottom w3-border-light-grey w3-padding-16">Map</h3>
         </div>
+        <div class="w3-container w3-padding-32">
+            <iframe id="forecast_embed" frameborder="0" height="245" width="100%" src="//forecast.io/embed/#lat=53.349562&lon=-6.278198&name=Dublin"></iframe>
+        </div>
+        <div id='myMap' style='width: 100vw; height: 100vh;'></div>
 
-
+        <script type="text/javascript" src="../static/js/map_weather.js"> </script>
+        <script type='text/javascript' src='https://www.bing.com/api/maps/mapcontrol?key=AkcJtF5SkN5X8pymVbvKviaOi-lguKHDYv0rCx8IT0DkmPu-8FIVz-IBTFaz_38r&callback=loadMapScenario' async defer></script>
 
         <!-- Image Section -->
         <div class="w3-container w3-padding-32" id="image">
@@ -137,36 +141,8 @@
                 <p>Phasellus eget enim eu lectus faucibus vestibulum. Suspendisse sodales pellentesque elementum.</p>
                 <p><button class="w3-button w3-light-grey w3-block">Contact</button></p>
             </div>
-            <!--<div class="w3-col l3 m6 w3-margin-bottom">
-                <img src="/w3images/team4.jpg" alt="Dan" style="width:100%">
-                <h3>Dan Star</h3>
-                <p class="w3-opacity">Architect</p>
-                <p>Phasellus eget enim eu lectus faucibus vestibulum. Suspendisse sodales pellentesque elementum.</p>
-                <p><button class="w3-button w3-light-grey w3-block">Contact</button></p>
-            </div>-->
         </div>
 
-        <!-- Contact Section -->
-        <!--<div class="w3-container w3-padding-32" id="contact">
-    <h3 class="w3-border-bottom w3-border-light-grey w3-padding-16">Contact</h3>
-    <p>Lets get in touch and talk about your next project.</p>
-    <form action="/action_page.php" target="_blank">
-      <input class="w3-input w3-border" type="text" placeholder="Name" required name="Name">
-      <input class="w3-input w3-section w3-border" type="text" placeholder="Email" required name="Email">
-      <input class="w3-input w3-section w3-border" type="text" placeholder="Subject" required name="Subject">
-      <input class="w3-input w3-section w3-border" type="text" placeholder="Comment" required name="Comment">
-      <button class="w3-button w3-black w3-section" type="submit">
-        <i class="fa fa-paper-plane"></i> SEND MESSAGE
-      </button>
-    </form>
-  </div>-->
-
-        <!-- Image of location/map -->
-        <!--<div class="w3-container">
-            <img src="./image/face1.jpg" class="w3-image" style="width:100%">
-        </div>-->
-
-        <!-- End page content -->
     </div>
 
 

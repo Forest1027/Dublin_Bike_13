@@ -113,7 +113,7 @@ function loadMapScenario() {
 
         }
     };
-    xmlhttp.open("GET", "stations.json", true);
+    xmlhttp.open("GET", "/static/js/stations.json", true);
     xmlhttp.send();
 
 }
