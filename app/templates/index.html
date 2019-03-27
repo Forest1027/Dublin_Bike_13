@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="../static/css/w3.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+<!-- Resources -->
+<script src="https://www.amcharts.com/lib/4/core.js"></script>
+<script src="https://www.amcharts.com/lib/4/charts.js"></script>
+<script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
+
 <body>
 
     <!-- Navbar (sit on top) -->
@@ -46,11 +52,14 @@
         <div class="w3-container w3-padding-32">
             <iframe id="forecast_embed" frameborder="0" height="245" width="100%" src="//forecast.io/embed/#lat=53.349562&lon=-6.278198&name=Dublin"></iframe>
         </div>
+        <div class="w3-content w3-padding-64" id="chartdiv">
+        </div>
+        <div style="height: 80px"></div>
         <div id='myMap' style='width: 100vw; height: 100vh;'></div>
 
         <script type="text/javascript" src="../static/js/map_weather.js"> </script>
         <script type='text/javascript' src='https://www.bing.com/api/maps/mapcontrol?key=AkcJtF5SkN5X8pymVbvKviaOi-lguKHDYv0rCx8IT0DkmPu-8FIVz-IBTFaz_38r&callback=loadMapScenario' async defer></script>
-
+        <script src="../static/js/chart.js"></script>
         <!-- Image Section -->
         <div class="w3-container w3-padding-32" id="image">
             <h3 class="w3-border-bottom w3-border-light-grey w3-padding-16">Gallery</h3>

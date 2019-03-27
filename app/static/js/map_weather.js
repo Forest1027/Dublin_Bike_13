@@ -1,5 +1,6 @@
 var map;
 var infobox;
+
 function loadMapScenario() {
     map = new Microsoft.Maps.Map(document.getElementById('myMap'), {
         mapTypeId: Microsoft.Maps.MapTypeId.road,
@@ -39,6 +40,8 @@ xmlhttp.send();*/
 function pushpinClicked(e) {
     //Make sure the infobox has metadata to display.
     if (e.target.metadata) {
+        //get station number
+        var number = e.target.metadata.title.split(' ')[2];
         //Set the infobox options with the metadata of the pushpin.
         infobox.setOptions({
             location: e.target.metadata.location0,
@@ -56,7 +59,18 @@ function pushpinClicked(e) {
                 {
                     label: 'Biking Chart',
                     eventHandler: function () {
-                        alert('Chart for Biking');
+                        alert("---")
+                        /*$.ajax({
+                            url: "/station_occupancy_timeline/" + number,
+                            type: "GET",
+                            dataType: "json",
+                            success: function (data) {
+                                //transform json
+                                var json = transformJson(data);
+                                createChart(json);
+                            }
+                        });*/
+
                     }
                                 }
                             ]
@@ -64,7 +78,15 @@ function pushpinClicked(e) {
     }
 }
 
-function a(obj) {
+function transformJson(data) {
+    var availability = data['availability'];
+    for (var key in availability) {
+        alert(key+"---"+availability[key]);
+    }
+    
+}
+
+function initStations(obj) {
     for (var i = 0; i < obj.length; i++) {
         var number = obj[i].number;
         var name = obj[i].name;
@@ -146,7 +168,7 @@ function getStations() {
         type: "GET",
         dataType: "json",
         success: function (data) {
-            a(data["stations"])
+            initStations(data["stations"])
         }
     });
 
