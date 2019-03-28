@@ -12,7 +12,7 @@ function loadMapScenario() {
         visible: false,
         maxWidth: 350,
         maxHeight: 200,
-        description: '<div style="height:20px; overflow: auto;"><div>'
+        description: '<div style="height:10px; overflow: auto;"><div>'
     });
 
     infobox.setMap(map);
@@ -41,14 +41,14 @@ function pushpinClicked(e) {
     //Make sure the infobox has metadata to display.
     if (e.target.metadata) {
         //get station number
-        var number = e.target.metadata.title.split(' ')[2];
+        //var number = e.target.metadata.title.split(' ')[2];
         //Set the infobox options with the metadata of the pushpin.
         infobox.setOptions({
             location: e.target.metadata.location0,
             title: e.target.metadata.title,
             description: e.target.metadata.description,
             visible: true,
-            actions: [{
+            /*actions: [{
                     label: 'Dublin Weather',
                     eventHandler: function () {
                         var ifrm = document.getElementById('forecast_embed');
@@ -60,7 +60,7 @@ function pushpinClicked(e) {
                     label: 'Biking Chart',
                     eventHandler: function () {
                         alert("---")
-                        /*$.ajax({
+                        $.ajax({
                             url: "/station_occupancy_timeline/" + number,
                             type: "GET",
                             dataType: "json",
@@ -69,11 +69,11 @@ function pushpinClicked(e) {
                                 var json = transformJson(data);
                                 createChart(json);
                             }
-                        });*/
+                        });
 
                     }
                                 }
-                            ]
+                            ]*/
         });
     }
 }
@@ -81,10 +81,76 @@ function pushpinClicked(e) {
 function transformJson(data) {
     var availability = data['availability'];
     for (var key in availability) {
-        alert(key+"---"+availability[key]);
+        alert(key + "---" + availability[key]);
     }
-    
+
 }
+
+function jumpChart(number, lat, lng, func) {
+    var loc = new Microsoft.Maps.Location(lat, lng);
+    var userPin = new Microsoft.Maps.Pushpin(map.getCenter(), {
+        visible: false,
+        color: Microsoft.Maps.Color.fromHex('#000D29'),
+        roundClickableArea: true
+    });
+    userPin.setLocation(loc);
+    userPin.setOptions({
+        visible: true
+    });
+    userPin.metadata = {
+        title: 'Previous Availibility',
+        description: '<div id="main" style="width: 600px;height:400px;"></div>',
+        location0: loc,
+        lat0: lat,
+        lng0: lng
+    };
+    if (func == "previousChart") {
+        previousChart(userPin);
+    } else if (func == "predictChart") {
+        predictChart(userPin);
+    }
+
+}
+
+function previousChart(e) {
+    //Make sure the infobox has metadata to display.
+    if (e.metadata) {
+        //Set the infobox options with the metadata of the pushpin.
+        infobox.setOptions({
+            location: e.metadata.location0,
+            title: e.metadata.title,
+            description: e.metadata.description,
+            visible: true,
+        });
+    }
+    //insert chart
+    createChart("json");
+}
+
+function predictChart(e) {
+
+}
+
+function createChart(data_json) {
+    var myChart = echarts.init(document.getElementById('main'));
+    var option = {
+        xAxis: {
+            type: 'category',
+            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [{
+            data: [820, 932, 901, 934, 1290, 1330, 1320],
+            type: 'line'
+    }]
+    };
+    myChart.setOption(option);
+}
+
+
+
 
 function initStations(obj) {
     for (var i = 0; i < obj.length; i++) {
@@ -101,7 +167,8 @@ function initStations(obj) {
         var userPin = new Microsoft.Maps.Pushpin(map.getCenter(), {
             visible: false,
             color: Microsoft.Maps.Color.fromHex('#000D29'),
-            roundClickableArea: true
+            roundClickableArea: true,
+            width:"100px"
         });
         userPin.setLocation(loc);
         userPin.setOptions({
@@ -109,7 +176,7 @@ function initStations(obj) {
         });
         userPin.metadata = {
             title: 'Bike Station: ' + number,
-            description: 'Station Name: ' + name + '<br/>Address: ' + address,
+            description: 'Station Name: ' + name + '<br/>Address: ' + address + '<br/> <br/><button class="btn" type="button" onclick="jumpChart(' + number + ',' + lat + ',' + lng + ',\'previousChart\')">previous data</button>&nbsp;&nbsp;&nbsp;<button class="btn" type="button">prediction</button>',
             location0: loc,
             lat0: lat,
             lng0: lng
