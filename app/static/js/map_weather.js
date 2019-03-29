@@ -10,15 +10,12 @@ function loadMapScenario() {
 
     infobox = new Microsoft.Maps.Infobox(map.getCenter(), {
         visible: false,
-        maxWidth: 350,
-        maxHeight: 200,
+        maxWidth: 600,
+        maxHeight: 400,
         description: '<div style="height:10px; overflow: auto;"><div>'
     });
 
     infobox.setMap(map);
-
-
-
     getStations();
 }
 
@@ -48,45 +45,11 @@ function pushpinClicked(e) {
             title: e.target.metadata.title,
             description: e.target.metadata.description,
             visible: true,
-            /*actions: [{
-                    label: 'Dublin Weather',
-                    eventHandler: function () {
-                        var ifrm = document.getElementById('forecast_embed');
-                        ifrm.src = '//forecast.io/embed/#lat=' + e.target.metadata.lat0 + '&lon=' + e.target.metadata.lng0 + '&name=Dublin';
-                    }
-
-                                },
-                {
-                    label: 'Biking Chart',
-                    eventHandler: function () {
-                        alert("---")
-                        $.ajax({
-                            url: "/station_occupancy_timeline/" + number,
-                            type: "GET",
-                            dataType: "json",
-                            success: function (data) {
-                                //transform json
-                                var json = transformJson(data);
-                                createChart(json);
-                            }
-                        });
-
-                    }
-                                }
-                            ]*/
         });
     }
 }
 
-function transformJson(data) {
-    var availability = data['availability'];
-    for (var key in availability) {
-        alert(key + "---" + availability[key]);
-    }
-
-}
-
-function jumpChart(number, lat, lng, func) {
+function jumpChart(number, lat, lng) {
     var loc = new Microsoft.Maps.Location(lat, lng);
     var userPin = new Microsoft.Maps.Pushpin(map.getCenter(), {
         visible: false,
@@ -99,20 +62,97 @@ function jumpChart(number, lat, lng, func) {
     });
     userPin.metadata = {
         title: 'Previous Availibility',
-        description: '<div id="main" style="width: 600px;height:400px;"></div>',
+        description: '<div id="main" style="width: 300px;height:200px;"></div><button class="btn" type="button" onclick="basicInfo(' + number + ',' + lat + ',' + lng + ')">basic info</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button class="btn" type="button" onclick="jumpPredict(' + number + ',' + lat + ',' + lng + ')">prediction</button>',
         location0: loc,
         lat0: lat,
         lng0: lng
     };
-    if (func == "previousChart") {
-        previousChart(userPin);
-    } else if (func == "predictChart") {
-        predictChart(userPin);
-    }
+
+    previousChart(userPin, number);
 
 }
 
-function previousChart(e) {
+function basicInfo(number, lat, lng) {
+    regetStations(number);
+}
+
+function regetStations(number) {
+    $.ajax({
+        url: "/stations",
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+            for (var i = 0; i < data["stations"].length; i++) {
+                if (data["stations"][i].number == number) {
+                    reInitStations(data["stations"][i]);
+                }
+            }
+        }
+    });
+
+}
+
+function reInitStations(obj) {
+    var number = obj.number;
+    var name = obj.name;
+    //console.log(obj[i].name)
+    var lat = obj.lat;
+    var lng = obj.lng;
+    //var bike_stands = obj[i].bike_stands;
+    var available_bike_stands = obj.available_bike_stands;
+    var available_bikes = obj.available_bikes;
+    var address = obj.address;
+    var loc = new Microsoft.Maps.Location(lat, lng);
+    var userPin;
+    if (available_bikes != 0) {
+        userPin = new Microsoft.Maps.Pushpin(map.getCenter(), {
+            visible: false,
+            color: Microsoft.Maps.Color.fromHex('#000D29'),
+            roundClickableArea: true,
+            width: "100px"
+        });
+    } else {
+        userPin = new Microsoft.Maps.Pushpin(map.getCenter(), {
+            visible: false,
+            color: Microsoft.Maps.Color.fromHex('#AC2E03'),
+            roundClickableArea: true,
+            width: "100px"
+        });
+    }
+    userPin.setLocation(loc);
+    userPin.setOptions({
+        visible: true
+    });
+    userPin.metadata = {
+        title: 'Bike Station: ' + number,
+        description: 'Station Name: ' + name + '<br/>Available Bike Stands: ' + available_bike_stands + ' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>Available Bikes: ' + available_bikes + '<br/>Address: ' + address + '<br/> <br/><button class="btn" type="button" onclick="jumpChart(' + number + ',' + lat + ',' + lng + ')">previous data</button>&nbsp;&nbsp;&nbsp;<button class="btn" type="button" onclick="jumpPredict(' + number + ',' + lat + ',' + lng + ')">prediction</button>',
+        location0: loc,
+        lat0: lat,
+        lng0: lng
+    };
+    infobox.setOptions({
+        location: userPin.metadata.location0,
+        title: userPin.metadata.title,
+        description: userPin.metadata.description,
+        visible: true,
+    });
+
+}
+
+function getPreviousData(number) {
+    $.ajax({
+        url: "/station_occupancy_timeline/" + number,
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+            //insert chart
+            createChart(data);
+        }
+    });
+
+}
+
+function previousChart(e, number) {
     //Make sure the infobox has metadata to display.
     if (e.metadata) {
         //Set the infobox options with the metadata of the pushpin.
@@ -123,28 +163,98 @@ function previousChart(e) {
             visible: true,
         });
     }
-    //insert chart
-    createChart("json");
+    //call /station_occupancy_timeline/<int:station_id>
+    getPreviousData(number);
+
 }
 
-function predictChart(e) {
+function jumpPredict(number, lat, lng) {
+    var loc = new Microsoft.Maps.Location(lat, lng);
+    var userPin = new Microsoft.Maps.Pushpin(map.getCenter(), {
+        visible: false,
+        color: Microsoft.Maps.Color.fromHex('#000D29'),
+        roundClickableArea: true
+    });
+    userPin.setLocation(loc);
+    userPin.setOptions({
+        visible: true
+    });
+    userPin.metadata = {
+        title: 'Prediction',
+        description: '<div style="width: 300px;height:200px;">Prediction Time: <input id="date" type="date"><br/> <br/><button class="btn" type="button" onclick="predictData(' + number + ',' + lat + ',' + lng + ')">Get Prediction</button> <br/> <br/><span id="result"></span></div>' + '<button class="btn" type="button" onclick="basicInfo(' + number + ',' + lat + ',' + lng + ')">basic info</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button class="btn" type="button" onclick="jumpChart(' + number + ',' + lat + ',' + lng + ')">previous data</button>',
+        location0: loc,
+        lat0: lat,
+        lng0: lng
+    };
+    predictData(number, lat, lng);
+    previousChart(userPin, number);
+}
+
+function predictData(number, lat, lng) {
+
+    var date = $("#date").val();
+    if (date != null) {
+        $.ajax({
+            url: "/prediction",
+            data: {
+                date: date,
+                number: number,
+                lat: lat,
+                lng: lng
+            },
+            type: "POST",
+            dataType: "json",
+            success: function (data) {
+                $("#result").empty();
+                $("#result").append("Predicted available bikes: " + data.result);
+            }
+        });
+    }
+}
+
+function transformJson(data) {
+    var avl_stands_list = [];
+    var avl_bikes_list = [];
+    var dates = [];
+    for (var i = 0; i < data.length; i++) {
+        avl_stands_list.append(data[i].available_bike_stands);
+        avl_bikes_list.append(data[i].available_bikes);
+        dates.append(data[i].date);
+    }
 
 }
 
 function createChart(data_json) {
+    var avl_stands_list = [];
+    var avl_bikes_list = [];
+    var dates = [];
+    for (var i = 0; i < data_json.length; i++) {
+        avl_stands_list.push(data_json[i].available_bike_stands);
+        avl_bikes_list.push(data_json[i].available_bikes);
+        dates.push(data_json[i].date);
+    }
+
     var myChart = echarts.init(document.getElementById('main'));
     var option = {
+        legend: {
+            data: ['available bike stands', 'available bikes']
+        },
         xAxis: {
             type: 'category',
-            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+            data: dates
         },
         yAxis: {
             type: 'value'
         },
         series: [{
-            data: [820, 932, 901, 934, 1290, 1330, 1320],
+            name: 'available bike stands',
+            data: avl_stands_list,
             type: 'line'
-    }]
+        }, {
+            name: 'available bikes',
+            data: avl_bikes_list,
+            type: 'line'
+        }]
     };
     myChart.setOption(option);
 }
@@ -160,68 +270,37 @@ function initStations(obj) {
         var lat = obj[i].lat;
         var lng = obj[i].lng;
         //var bike_stands = obj[i].bike_stands;
-        //var available_bike_stands = obj[i].available_bike_stands;
-        //var available_bikes = obj[i].available_bikes;
+        var available_bike_stands = obj[i].available_bike_stands;
+        var available_bikes = obj[i].available_bikes;
         var address = obj[i].address;
         var loc = new Microsoft.Maps.Location(lat, lng);
-        var userPin = new Microsoft.Maps.Pushpin(map.getCenter(), {
-            visible: false,
-            color: Microsoft.Maps.Color.fromHex('#000D29'),
-            roundClickableArea: true,
-            width:"100px"
-        });
+        var userPin;
+        if (available_bikes != 0) {
+            userPin = new Microsoft.Maps.Pushpin(map.getCenter(), {
+                visible: false,
+                color: Microsoft.Maps.Color.fromHex('#000D29'),
+                roundClickableArea: true,
+                width: "100px"
+            });
+        } else {
+            userPin = new Microsoft.Maps.Pushpin(map.getCenter(), {
+                visible: false,
+                color: Microsoft.Maps.Color.fromHex('#AC2E03'),
+                roundClickableArea: true,
+                width: "100px"
+            });
+        }
         userPin.setLocation(loc);
         userPin.setOptions({
             visible: true
         });
         userPin.metadata = {
             title: 'Bike Station: ' + number,
-            description: 'Station Name: ' + name + '<br/>Address: ' + address + '<br/> <br/><button class="btn" type="button" onclick="jumpChart(' + number + ',' + lat + ',' + lng + ',\'previousChart\')">previous data</button>&nbsp;&nbsp;&nbsp;<button class="btn" type="button">prediction</button>',
+            description: 'Station Name: ' + name + '<br/>Available Bike Stands: ' + available_bike_stands + ' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>Available Bikes: ' + available_bikes + '<br/>Address: ' + address + '<br/> <br/><button class="btn" type="button" onclick="jumpChart(' + number + ',' + lat + ',' + lng + ',\'previousChart\')">previous data</button>&nbsp;&nbsp;&nbsp;<button class="btn" type="button" onclick="jumpPredict(' + number + ',' + lat + ',' + lng + ')">prediction</button>',
             location0: loc,
             lat0: lat,
             lng0: lng
         };
-        /*if (available_bike_stands != 0) {
-                var userPin = new Microsoft.Maps.Pushpin(map.getCenter(), {
-                visible: false,
-                color: Microsoft.Maps.Color.fromHex('#000D29'),
-                roundClickableArea: true
-            });
-            userPin.setLocation(loc);
-            userPin.setOptions({
-                visible: true
-            });
-            userPin.metadata = {
-                title: 'Bike Station: ' + number,
-                description: 'Station Name: ' + name + '<br/>Bike Stands: ' + bike_stands + '<br/>Available Bike Stands: ' + available_bike_stands + '<br/>Available Bikes: ' + available_bikes + '<br/>Address: ' + address,
-                location0: loc,
-                lat0: lat,
-                lng0: lng
-            };
-
-
-
-            //map.entities.push(userPin);
-        } else {
-            var userPin = new Microsoft.Maps.Pushpin(map.getCenter(), {
-                //icon: 'https://www.bingmapsportal.com/Content/images/poi_custom.png',
-                visible: false,
-                //text: number.toString(),
-                color: Microsoft.Maps.Color.fromHex('#F14D49'),
-                roundClickableArea: true
-            });
-            userPin.setLocation(loc);
-            userPin.setOptions({
-                visible: true
-            });
-            userPin.metadata = {
-                title: 'Bike Station: ' + number,
-                description: 'Station Name: ' + name + '<br/>Bike Stands: ' + bike_stands + '<br/>Available Bike Stands: ' + available_bike_stands + '<br/>Available Bikes: ' + available_bikes + '<br/>Address: ' + address,
-                location0: loc,
-                lat0: lat,
-                lng0: lng
-            };
-        };*/
 
         Microsoft.Maps.Events.addHandler(userPin, 'click', pushpinClicked);
         map.entities.push(userPin);
