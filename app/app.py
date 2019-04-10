@@ -8,7 +8,7 @@ import sqlite3
 import pymysql
 pymysql.install_as_MySQLdb()
 import decimal
-import urllib.request
+import urllib
 import math
 import time
 from unittest.mock import inplace
