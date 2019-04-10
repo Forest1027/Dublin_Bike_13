@@ -67,9 +67,10 @@ def prediction():
     # get weather info
     response = requests.get('http://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon=' + lng + '&appid=0414cbe308f8d767feb72165eb4e4c86')
     #response = urllib.request.urlopen('http://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon=' + lng + '&appid=0414cbe308f8d767feb72165eb4e4c86')
-    tep2 = json.dumps(response.read().decode('utf-8'))
-    tep3 = json.loads(tep2)
-    weather = json.loads(tep3)
+    #tep2 = json.dumps(response.read().decode('utf-8'))
+    #tep3 = json.loads(tep2)
+    #weather = json.loads(tep3)
+    weather = response.json
     weather_id = weather['weather'][0]['id']
     ts = time.strptime(date, "%Y-%m-%d")
     date_uni = time.mktime(ts)
