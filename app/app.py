@@ -12,6 +12,7 @@ import urllib
 from urllib import request
 import math
 import time
+import requests
 
 
 app = Flask(__name__)
@@ -66,7 +67,8 @@ def prediction():
     lng = req.form["lng"]
     time4 = time.time()
     # get weather info
-    response = urllib.request.urlopen('http://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon=' + lng + '&appid=0414cbe308f8d767feb72165eb4e4c86')
+    response = requests.get('http://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon=' + lng + '&appid=0414cbe308f8d767feb72165eb4e4c86')
+    #response = urllib.request.urlopen('http://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon=' + lng + '&appid=0414cbe308f8d767feb72165eb4e4c86')
     tep2 = json.dumps(response.read().decode('utf-8'))
     tep3 = json.loads(tep2)
     weather = json.loads(tep3)
