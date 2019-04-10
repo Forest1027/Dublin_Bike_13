@@ -70,7 +70,9 @@ def prediction():
     #tep2 = json.dumps(response.read().decode('utf-8'))
     #tep3 = json.loads(tep2)
     #weather = json.loads(tep3)
-    weather = response.json
+    tep = response.text
+    weather = json.loads(tep)
+    print('weather------------',weather)
     weather_id = weather['weather'][0]['id']
     ts = time.strptime(date, "%Y-%m-%d")
     date_uni = time.mktime(ts)
