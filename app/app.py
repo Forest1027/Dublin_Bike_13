@@ -8,7 +8,7 @@ import sqlite3
 import pymysql
 pymysql.install_as_MySQLdb()
 import decimal
-import urllib
+import urllib.request
 import math
 import time
 
