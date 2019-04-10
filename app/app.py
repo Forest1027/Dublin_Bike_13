@@ -1,4 +1,4 @@
-from flask import Flask, g, jsonify, request
+from flask import Flask, g, jsonify, request as req
 from flask.templating import render_template
 import sqlalchemy as sqla
 from sqlalchemy import create_engine
@@ -8,7 +8,8 @@ import sqlite3
 import pymysql
 pymysql.install_as_MySQLdb()
 import decimal
-import urllib.request
+import urllib
+from urllib import request
 import math
 import time
 
@@ -59,10 +60,10 @@ def get_station_occupancy_timeline(station_id):
 @app.route("/prediction", methods=['POST'])
 def prediction():
     time1 = time.time()
-    date = request.form["date"]
-    number = request.form["number"]
-    lat = request.form["lat"]
-    lng = request.form["lng"]
+    date = req.form["date"]
+    number = req.form["number"]
+    lat = req.form["lat"]
+    lng = req.form["lng"]
     time4 = time.time()
     # get weather info
     response = urllib.request.urlopen('http://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon=' + lng + '&appid=0414cbe308f8d767feb72165eb4e4c86')
