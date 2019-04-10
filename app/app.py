@@ -6,12 +6,13 @@ import json
 import pandas as pd
 import sqlite3
 import pymysql
+pymysql.install_as_MySQLdb()
 import decimal
 import urllib.request
 import math
 import time
 from unittest.mock import inplace
-pymysql.install_as_MySQLdb()
+
 
 app = Flask(__name__)
 # app.config.from_object('config')
