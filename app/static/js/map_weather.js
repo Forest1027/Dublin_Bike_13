@@ -1,6 +1,7 @@
 var map;
 var infobox;
 
+// load map
 function loadMapScenario() {
     map = new Microsoft.Maps.Map(document.getElementById('myMap'), {
         mapTypeId: Microsoft.Maps.MapTypeId.road,
@@ -19,26 +20,11 @@ function loadMapScenario() {
     getStations();
 }
 
-
-
-/*var xmlhttp = new XMLHttpRequest();
-xmlhttp.onreadystatechange = function () {
-    if (this.readyState == 4 && this.status == 200) {
-        var myObj = JSON.parse(this.responseText);
-        a(myObj)
-
-    }
-};
-xmlhttp.open("GET", "/static/js/stations.json", true);
-xmlhttp.send();*/
-
-
-
+// show infobox
 function pushpinClicked(e) {
     //Make sure the infobox has metadata to display.
     if (e.target.metadata) {
         //get station number
-        //var number = e.target.metadata.title.split(' ')[2];
         //Set the infobox options with the metadata of the pushpin.
         infobox.setOptions({
             location: e.target.metadata.location0,
@@ -49,6 +35,7 @@ function pushpinClicked(e) {
     }
 }
 
+// initial setting of infobox (historical data of station)
 function jumpChart(number, lat, lng) {
     var loc = new Microsoft.Maps.Location(lat, lng);
     var userPin = new Microsoft.Maps.Pushpin(map.getCenter(), {
@@ -72,11 +59,8 @@ function jumpChart(number, lat, lng) {
 
 }
 
+// ajax request to get basic info of station
 function basicInfo(number, lat, lng) {
-    regetStations(number);
-}
-
-function regetStations(number) {
     $.ajax({
         url: "/stations",
         type: "GET",
@@ -89,21 +73,20 @@ function regetStations(number) {
             }
         }
     });
-
 }
 
+// initial setting of "basic info" infobox for jumpback from "previous availability" or "prediction" infoboxes
 function reInitStations(obj) {
     var number = obj.number;
     var name = obj.name;
-    //console.log(obj[i].name)
     var lat = obj.lat;
     var lng = obj.lng;
-    //var bike_stands = obj[i].bike_stands;
     var available_bike_stands = obj.available_bike_stands;
     var available_bikes = obj.available_bikes;
     var address = obj.address;
     var loc = new Microsoft.Maps.Location(lat, lng);
     var userPin;
+    // use different colors to represent user pin according to the availability of bikes
     if (available_bikes != 0) {
         userPin = new Microsoft.Maps.Pushpin(map.getCenter(), {
             visible: false,
@@ -139,6 +122,7 @@ function reInitStations(obj) {
 
 }
 
+// get the historical data of a specific station
 function getPreviousData(number) {
     $.ajax({
         url: "/station_occupancy_timeline/" + number,
@@ -152,6 +136,7 @@ function getPreviousData(number) {
 
 }
 
+// show infobox of previous availability
 function previousChart(e, number) {
     //Make sure the infobox has metadata to display.
     if (e.metadata) {
@@ -168,6 +153,7 @@ function previousChart(e, number) {
 
 }
 
+// initial setting of infobox (prediction)
 function jumpPredict(number, lat, lng) {
     var loc = new Microsoft.Maps.Location(lat, lng);
     var userPin = new Microsoft.Maps.Pushpin(map.getCenter(), {
@@ -190,8 +176,8 @@ function jumpPredict(number, lat, lng) {
     previousChart(userPin, number);
 }
 
+// get predicted availability
 function predictData(number, lat, lng) {
-
     var date = $("#date").val();
     if (date != null) {
         $.ajax({
@@ -212,18 +198,7 @@ function predictData(number, lat, lng) {
     }
 }
 
-function transformJson(data) {
-    var avl_stands_list = [];
-    var avl_bikes_list = [];
-    var dates = [];
-    for (var i = 0; i < data.length; i++) {
-        avl_stands_list.append(data[i].available_bike_stands);
-        avl_bikes_list.append(data[i].available_bikes);
-        dates.append(data[i].date);
-    }
-
-}
-
+// use echarts to present historical data of a specific station
 function createChart(data_json) {
     var avl_stands_list = [];
     var avl_bikes_list = [];
@@ -259,17 +234,13 @@ function createChart(data_json) {
     myChart.setOption(option);
 }
 
-
-
-
+// initial setting of infobox (basic info of station)
 function initStations(obj) {
     for (var i = 0; i < obj.length; i++) {
         var number = obj[i].number;
         var name = obj[i].name;
-        //console.log(obj[i].name)
         var lat = obj[i].lat;
         var lng = obj[i].lng;
-        //var bike_stands = obj[i].bike_stands;
         var available_bike_stands = obj[i].available_bike_stands;
         var available_bikes = obj[i].available_bikes;
         var address = obj[i].address;
@@ -308,6 +279,7 @@ function initStations(obj) {
     }
 }
 
+// get station list
 function getStations() {
     $.ajax({
         url: "/stations",
